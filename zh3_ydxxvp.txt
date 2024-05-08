@@ -1,0 +1,43 @@
+1, 
+{"countries.0": "USA",
+  "imdb.rating": { "$gte": 5 }}
+
+{
+  "title": 1,
+  "countries": 1,
+  "imdb.rating": 1,
+  "_id": 0
+}
+
+{"imdb.rating": -1}
+
+
+2,    
+
+use sample_mflix
+
+db.users.find(
+  { "email": /.*\.com$/ }, 
+  { "name": 1, "email": 1, "_id": 0 })
+
+
+3,
+db.movies.aggregate([
+    { $match: { year: { $gt: 1950 } } },
+    { $group: { _id: "$rated", average_runtime: { $avg: "$runtime" } } }])
+
+
+
+4,
+
+MATCH (m:Movie)<-[:ACTED_IN]-(p:Person)
+WHERE (TOINTEGER(m.released) > 1970) OR (m.title CONTAINS "Love")
+RETURN m.title AS movie_title, COLLECT(p.name) AS actors
+ORDER BY movie_title DESC
+
+
+5,
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+WHERE p.born > 1980
+RETURN p.name AS Actor, p.born AS BirthYear, COUNT(m) AS NumMoviesActedIn
+ORDER BY Actor
