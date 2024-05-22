@@ -1,0 +1,69 @@
+Sql Azure Data Studio Választott feladatok (1,2,3,5)
+
+1
+SELECT s.SZOBA_ID, COUNT(f.FOGLALAS_PK) AS FoglalasokSzama
+FROM Szoba s
+LEFT JOIN Foglalas f ON s.SZOBA_ID = f.SZOBA_FK
+GROUP BY s.SZOBA_ID;
+
+2
+WITH LegtobbFerohely AS (
+    SELECT MAX(FEROHELY) AS MaxFerohely
+    FROM Szoba
+    WHERE KLIMAS = 'I'
+)
+SELECT v.*
+FROM Vendeg v
+JOIN Foglalas f ON v.USERNEV = f.UGYFEL_FK
+JOIN Szoba s ON f.SZOBA_FK = s.SZOBA_ID
+JOIN LegtobbFerohely lf ON s.FEROHELY = lf.MaxFerohely
+WHERE s.KLIMAS = 'I';
+
+3
+WITH FoglalasSzam AS (
+    SELECT UGYFEL_FK, COUNT(*) AS FoglalasokSzama
+    FROM Foglalas
+    GROUP BY UGYFEL_FK
+)
+SELECT
+    ROW_NUMBER() OVER (ORDER BY FoglalasokSzama DESC) AS Sorrend,
+    v.USERNEV,
+    v.NEV,
+    fs.FoglalasokSzama
+FROM Vendeg v
+JOIN FoglalasSzam fs ON v.USERNEV = fs.UGYFEL_FK
+ORDER BY Sorrend;,
+    v.NEV,
+
+5
+SELECT
+    COUNT(DISTINCT Ferohely) AS Kulonbozo,
+    MIN(Ferohely) AS Minimum,
+    MAX(Ferohely) AS Maximum,
+    AVG(Ferohely) AS Atlag,
+    (COUNT(CASE WHEN Ferohely IS NULL THEN 1 END) * 100.0 / COUNT(*)) AS Nullarany,
+    (COUNT(CASE WHEN Ferohely IS NOT NULL THEN 1 END) * 100.0 / COUNT(*)) AS NotNullarany
+FROM Szoba;
+
+
+
+
+
+
+NoSql:Választottak (6,8)
+Reddis 6
+
+HSET IRO:1 ID 1 nev "J.K. Rowling" nemzetiseg "brit"
+
+HSET IRO:2 ID 2 nev "George R.R. Martin" nemzetiseg "amerikai"
+
+HSET KONYV:1 ID 1 cim "Harry Potter and the Philosopher's Stone" mufaj "fantasy" IRO_ID 1
+
+HSET KONYV:2 ID 2 cim "A Game of Thrones" mufaj "fantasy" IRO_ID 2
+
+
+Neo4j 8
+
+MATCH (tom:Person {name: "Tom Hanks"})-[:ACTED_IN]->(movie:Movie)<-[:ACTED_IN]-(coactors)
+WHERE coactors.name <> "Tom Hanks"
+RETURN DISTINCT coactors.name AS szereplo
